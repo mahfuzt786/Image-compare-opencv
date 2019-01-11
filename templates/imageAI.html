@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Image AI</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+  <h1>The Demo</h1>
+  <h3>Image Artificial Intelligence</h3>
+  <br/> <br/> <br/>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="row">
+        <span class="col-md-11">The system is currently trained with {{ filecount }} posters..</span>
+      </div>
+      <div class="row" style="margin-left: 10px;">
+        <div class="imageContainer col-md-11" style="height:400px; overflow-y: scroll; border: 1px solid #79D0E1;">
+          <!-- display trained images here -->
+          {% for image_name in image_names %}
+            {% if image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg') or image_name.lower().endswith('.png') %}
+                <!-- imageLoad = trainedImagePath +'/'+ files[img] -->
+                <div style="padding:5px; height:170px; width:170px; float:left;">
+                  <img src="{{url_for('send_image', filename=image_name)}}" height="150px" width="150px"/>
+                </div>
+            {% endif %}
+          {% endfor %}
+
+        </div>
+      </div>
+      <br/> <br/> <br/> <br/>       
+      <div class="row">
+        <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+          <div class="form-group col-md-11">
+            <label for="uploadSmall">Upload an Poster to train.:</label>
+            <!-- <input type="file" id="uploadSmall" class="form-control" name="uploadSmall" value="Upload Now"/> -->
+            <input type="file" name="fileToUpload" class="form-control" id="uploadSmall" accept="image/*" required>
+            <input type="submit" value="Upload Now" class="form-control" name="submit">
+          </div>
+        </form>
+      </div>
+
+    </div>
+    
+    <div class="col-md-6">
+      <div class="row">
+        <div class="form-group col-md-11">
+            <label for="photographer">Photographer's Name:</label>
+            <input type="text" id="photographer" class="form-control" name="photographer" />
+        </div>
+      </div>
+      <br/> <br/> <br/> <br/>
+      <div class="row">
+        <form id="uploadCheck" action="{{ url_for('uploaded') }}" method="POST" enctype="multipart/form-data">
+          <div class="form-group col-md-11">
+            <label for="uploadBig">Upload an Poster to check with trained posters.</label>
+            <!-- <input type="file" id="uploadBig" class="form-control" name="uploadBig" value="Upload Now" accept="image/*" /> -->
+            <input type="file" name="fileToUpload" class="form-control" id="uploadBig" accept="image/*" required>
+            <input type="submit" value="Upload Now" class="form-control" name="submit">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+
+<script>
+  $("#uploadSmall").change(function(){
+      var input = document.getElementById('uploadSmall');
+      for (var i=0; i<input.files.length; i++)
+      {
+          var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+          if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') ))
+          {
+              alert("Files are NOT supported")
+              document.getElementById("uploadSmall").value ="";
+          }
+      }
+  });
+
+  $("#uploadBig").change(function(){
+      var input = document.getElementById('uploadBig');
+      for (var i=0; i<input.files.length; i++)
+      {
+          var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+          if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') ))
+          {
+              alert("Files are NOT supported")
+              document.getElementById("uploadBig").value ="";
+          }
+      }
+  });
+
+  // $('#upload-file-btn').click(function() {
+  //     var form_data = new FormData($('#upload-file')[0]);
+  //     $.ajax({
+  //         type: 'POST',
+  //         url: '/upload',
+  //         data: form_data,
+  //         contentType: false,
+  //         cache: false,
+  //         processData: false,
+  //         success: function(data) {
+  //             console.log('Success!');
+  //         },
+  //     });
+  // });
+</script>
+
+</html>

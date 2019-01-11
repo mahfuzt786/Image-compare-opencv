@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Result</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+</head>
+<body>
+<div class="container">
+
+    <h3><a href="/"> Back to Home </a></h3>
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Uploaded Image</h1>
+        </div>
+        <hr>
+        <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="height: 170px; width: 170px;">
+            <img class="img-responsive" src=" {{url_for('uploaded_file', filename=image_upload)}}">
+        </div>
+    </div>
+    <hr><hr>
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Matched Images</h1>
+        </div>
+        Matched Values Respectively (separated by comma): <br/> {{returnValue}}
+        <hr>
+        {% for image_name in image_names %}
+        <div class="col-lg-3 col-md-4 col-xs-6 thumb" style="height: 170px; width: 170px;">
+            <img class="img-responsive" src=" {{url_for('send_image', filename=image_name)}}" height="150px" width="150px" >
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+</body>
+</html>
