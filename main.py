@@ -106,20 +106,20 @@ def upload():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            destination = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            destination = target + filename #os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(destination)
             print(destination)
 
             ## after upload to 'uploads' folder check for duplicates
             img1 = cv2.imread(destination, 0)           # queryImage
             
-            if not os.listdir("/train"):
+            if not os.listdir("train"):
                 copy2(destination, trained)
             else:
                 ## Find All images from the train folder
-                for file in os.listdir("/train"):
+                for file in os.listdir("train"):
                     if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png'):
-                        newImage = os.path.join('train/', file)
+                        newImage = trained + file #os.path.join('train/', file)
                         img2 = cv2.imread(newImage, 0)     # trainImage
                         returnValue = computeImage(img1, img2)
                         
@@ -138,7 +138,7 @@ def upload():
 def uploaded():
     #target  = os.path.join(APP_ROOT, 'uploads/')
     #trained = os.path.join(APP_ROOT, 'train/')
-    target  = 'uploads/
+    target  = 'uploads/'
     trained = 'train/'   
 
     if not os.path.isdir(target):
@@ -165,7 +165,7 @@ def uploaded():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            destination = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            destination = target + filename #os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(destination)
             #print(destination)
 
@@ -174,9 +174,9 @@ def uploaded():
             imgList     = []
             imgValue    = []
             ## Find All images from the train folder
-            for file in os.listdir("/train"):
+            for file in os.listdir("train"):
                 if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png'):
-                    newImage = os.path.join('train/', file)
+                    newImage = trained + file # os.path.join('train/', file)
                     img2 = cv2.imread(newImage, 0)     # trainImage
                     returnValue = computeImage(img2, img1)
 
