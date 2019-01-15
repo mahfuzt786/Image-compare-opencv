@@ -25,8 +25,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-os.chmod('uploads', 0777)
-os.chmod('train', 0777)
+
 ## function to check allowed filetype
 def allowed_file(filename):
     return '.' in filename and \
@@ -70,7 +69,9 @@ def computeImage(img1, img2):
 ## display home page and send required parameters
 @app.route('/')
 @app.route('/index')
-def index():    
+def index():
+    os.chmod('uploads', 777)
+    os.chmod('train', 777)
     path, dirs, files = next(os.walk(trainedImagePath))
     file_count = len(files)
     image_names = os.listdir('train')
