@@ -25,7 +25,8 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-
+os.chmod('uploads', 0777)
+os.chmod('train', 0777)
 ## function to check allowed filetype
 def allowed_file(filename):
     return '.' in filename and \
