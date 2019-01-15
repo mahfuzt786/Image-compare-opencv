@@ -7,9 +7,12 @@ from matplotlib import pyplot as plt
 from shutil import copy2, copy
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-trainedImagePath = os.path.join(APP_ROOT, "train")
-UPLOAD_FOLDER = os.path.join(APP_ROOT, "uploads")
+#trainedImagePath = os.path.join(APP_ROOT, "train")
+#UPLOAD_FOLDER = os.path.join(APP_ROOT, "uploads")
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+
+trainedImagePath = "train"
+UPLOAD_FOLDER = "uploads"
 
 if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
@@ -69,14 +72,16 @@ def computeImage(img1, img2):
 def index():    
     path, dirs, files = next(os.walk(trainedImagePath))
     file_count = len(files)
-    image_names = os.listdir('./train')
+    image_names = os.listdir('train')
     return render_template('imageAI.html', filecount=file_count, files=files, image_names=image_names)
 
 ## upload train images as well as check for existance
 @app.route("/upload", methods=['POST'])
 def upload():
-    target  = os.path.join(APP_ROOT, 'uploads/')
-    trained = os.path.join(APP_ROOT, 'train/')
+    #target  = os.path.join(APP_ROOT, 'uploads/')
+    #trained = os.path.join(APP_ROOT, 'train/')
+    target  = 'uploads/'
+    trained = 'train/'
     #print(request.url)
     if not os.path.isdir(target):
             os.mkdir(target)
@@ -108,11 +113,11 @@ def upload():
             ## after upload to 'uploads' folder check for duplicates
             img1 = cv2.imread(destination, 0)           # queryImage
             
-            if not os.listdir("./train"):
+            if not os.listdir("/train"):
                 copy2(destination, trained)
             else:
                 ## Find All images from the train folder
-                for file in os.listdir("./train"):
+                for file in os.listdir("/train"):
                     if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png'):
                         newImage = os.path.join('train/', file)
                         img2 = cv2.imread(newImage, 0)     # trainImage
@@ -131,9 +136,11 @@ def upload():
 # Function to check matched images with the big poster
 @app.route("/uploaded", methods=['POST'])
 def uploaded():
-    target  = os.path.join(APP_ROOT, 'uploads/')
-    trained = os.path.join(APP_ROOT, 'train/')
-    
+    #target  = os.path.join(APP_ROOT, 'uploads/')
+    #trained = os.path.join(APP_ROOT, 'train/')
+    target  = 'uploads/
+    trained = 'train/'   
+
     if not os.path.isdir(target):
             os.mkdir(target)
     else:
@@ -167,7 +174,7 @@ def uploaded():
             imgList     = []
             imgValue    = []
             ## Find All images from the train folder
-            for file in os.listdir("./train"):
+            for file in os.listdir("/train"):
                 if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png'):
                     newImage = os.path.join('train/', file)
                     img2 = cv2.imread(newImage, 0)     # trainImage
