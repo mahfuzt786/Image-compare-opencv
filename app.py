@@ -28,6 +28,38 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+## function to image resize
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
+
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
+
+    # # check to see if the width is None
+    # if width is None:
+    #     # calculate the ratio of the height and construct the
+    #     # dimensions
+    #     r = height / float(h)
+    #     dim = (int(w * r), height)
+
+    # # otherwise, the height is None
+    # else:
+    #     # calculate the ratio of the width and construct the
+    #     # dimensions
+    #     r = width / float(w)
+    #     dim = (width, int(h * r))
+    dim = (int(w/2), int(h/2))
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
+
 ## function to check image matching and return matching values
 def computeImage(img1, img2):
     # Initiate SIFT detector
@@ -106,7 +138,12 @@ def upload():
             print(destination)
 
             ## after upload to 'uploads' folder check for duplicates
-            img1 = cv2.imread(destination, 0)           # queryImage
+            # img1 = cv2.imread(destination, 0)             # queryImage
+            img1 = cv2.imread(destination)                  # queryImage
+            # resize the image
+            img1 = image_resize(img1, height = 200)
+            # save the resized image
+            cv2.imwrite(destination, img1)
             
             if not os.listdir("./train"):
                 copy2(destination, trained)
@@ -115,7 +152,7 @@ def upload():
                 for file in os.listdir("./train"):
                     if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png'):
                         newImage = os.path.join('train/', file)
-                        img2 = cv2.imread(newImage, 0)     # trainImage
+                        img2 = cv2.imread(newImage)     # trainImage
                         returnValue = computeImage(img1, img2)
                         
                         if returnValue >= 75 :
@@ -163,7 +200,12 @@ def uploaded():
             #print(destination)
 
             ## after upload to 'uploads' folder check for matching
-            img1 = cv2.imread(destination, 0)           # queryImage
+            # img1 = cv2.imread(destination, 0)             # queryImage
+            img1 = cv2.imread(destination)                  # queryImage
+            # resize the image            
+            img1 = image_resize(img1, height = 900)
+            # save the resized image
+            cv2.imwrite(destination, img1)
             imgList     = []
             imgValue    = []
             ## Find All images from the train folder
