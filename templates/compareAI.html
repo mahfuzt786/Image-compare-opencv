@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Select Images</title>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700,900" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'app.css') }}">
+    <style>
+      :checked + label {
+        border-color: #01AEF0;
+      }
+      :checked + label img {
+        transform: scale(0.9);
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="containter">
+      <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+          <div class="col-sm-6 col-sm-offset-3 image-box">
+            <h2>DEMO - Artificial Intelligence</h2>
+            <p><strong>{{ filecount }}</strong> images are pre-trained</p>
+            <div class="col-sm-12 no-pad-lf img-gallery-box">
+              <ul>
+                <!-- display trained images here -->
+                {% for image_name in image_names %}
+                  {% if image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg') or image_name.lower().endswith('.png') %}
+                    <li class="image-checkbox">
+                      <input type="checkbox" id="chk{{image_name}}" name="image" value="{{image_name}}" />
+                      <label for="chk{{image_name}}" title="Train">
+                        <img src="{{url_for('send_image', filename=image_name)}}" />
+                      </label>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            
+            </div>
+            <!-- <div class="col-sm-12 no-pad-lf">
+              <div class="form-group inputDnD">
+                <label class="sr-only" for="inputFile">File Upload</label>
+                  <input type="file" class="form-control-file text-primary font-weight-bold" id="inputFile" multiple accept="image/*" onchange="readUrl(this)" data-title="Drag and drop a file">
+              </div>
+            </div> -->
+            <div class="col-sm-12 no-pad-lf">
+              <button type="button" class="btn btn-success common-btn upload-btn">Select one or more poster(s) to compare</button>
+            </div>
+            <!-- poster section -->
+            <div class="col-sm-12 no-pad-lf second-form">
+              <div class="col-sm-12 no-pad-lf img-gallery-box">
+                <ul>
+                  <!-- display poster images for select -->
+                  {% for image_nameUp in image_namesUp %}
+                    {% if image_nameUp.lower().endswith('.jpg') or image_nameUp.lower().endswith('.jpeg') or image_nameUp.lower().endswith('.png') %}
+                      <li class="image-checkbox">
+                        <input type="checkbox" id="chkb{{image_nameUp}}" name="imageUp" value="{{image_nameUp}}" />
+                        <label for="chkb{{image_nameUp}}" title="Poster">
+                          <img src="{{url_for('poster_image', filename=image_nameUp)}}" />
+                        </label>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                  
+                </ul>
+              </div>
+              
+              <form id="uploadCheck" action="{{ url_for('compare') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnim();">
+                <div class="col-sm-12 no-pad-lf">
+                  <input type="hidden" id="trainSelected" name="trainSelected" value="" />
+                  <input type="hidden" id="posterSelected" name="posterSelected" value="" />
+                  <button type="button" class="btn btn-primary common-btn compare-btn">Select one or more photos to compare</button>
+
+                  <button id="btnStartDis" type="button" class="btn btn-primary disabled common-btn next-btn">Start <i class="fas fa-angle-double-right"></i></button>
+                  <button id="btnStart" type="submit" class="btn btn-primary common-btn next-btn" name="submit" style="display:none;">Start <i class="fas fa-angle-double-right"></i> </button>
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match Modal -->
+      <div id="trainModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-body">
+              {% include 'anim-training.html' %}
+                <div class="row">
+                  <br/>
+                  <span style="text-align: center; width:100%; float: left; font-weight: bold; font-size: 0.8em;"> Comparing of Images </span>
+                </div>
+            </div>
+          </div>  
+        </div>
+      </div>
+      <!-- End Match Modal -->
+
+      <!-- View flash Modal Start -->
+      <div id="flashMsgModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+              <!-- Modal content-->
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Information</h4>
+                  </div>
+                  <div class="modal-body">
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        <ul class=flashes>
+                          {% for message in messages %}
+                          <li>{{ message }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+              </div>  
+          </div>
+      </div>
+      <!-- View flash Modal End -->
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type = "text/javascript" src = "{{ url_for('static', filename = 'app.js') }}" ></script>
+    <script type="text/javascript">
+      function showAnim() {
+        $('#trainModal').modal({backdrop: "static"});
+        $('#trainModal').modal('show');
+      }
+
+      var messages = "{{ get_flashed_messages() }}";
+
+      if (typeof messages != 'undefined' && messages != '[]') {
+          $("#flashMsgModal").modal();
+      };
+    </script>
+  </body>
+</html>

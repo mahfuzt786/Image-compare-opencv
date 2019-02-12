@@ -1,118 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>Image AI</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Image AI</title>
 
-<div class="container-fluid">
-  <h1>The Demo</h1>
-  <h3>Image Artificial Intelligence</h3>
-  <br/> <br/> <br/>
-  <div class="row">
-    <div class="col-md-6">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700,900" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'app.css') }}">
+
+  </head>
+  <body>
+    <div class="containter">
       <div class="row">
-        <span class="col-md-11">The system is currently trained with {{ filecount }} posters..</span>
-      </div>
-      <div class="row" style="margin-left: 10px;">
-        <div class="imageContainer col-md-11" style="height:400px; overflow-y: scroll; border: 1px solid #79D0E1;">
-          <!-- display trained images here -->
-          {% for image_name in image_names %}
-            {% if image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg') or image_name.lower().endswith('.png') %}
-                <!-- imageLoad = trainedImagePath +'/'+ files[img] -->
-                <div style="padding:5px; height:170px; width:170px; float:left;">
-                  <img src="{{url_for('send_image', filename=image_name)}}" height="150px" width="150px"/>
+        <div class="col-sm-10 col-sm-offset-1">
+          <div class="col-sm-6 col-sm-offset-3 image-box">
+            <h2>DEMO - Artificial Intelligence</h2>
+            <p><strong>{{ filecount }}</strong> images are pre-trained</p>
+            <div class="col-sm-12 no-pad-lf img-gallery-box">
+              <ul>
+                <!-- display trained images here -->
+                {% for image_name in image_names %}
+                  {% if image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg') or image_name.lower().endswith('.png') %}
+                    <li class="image-checkbox selectorDel"> <!-- data-container="body" rel="popover"> -->
+                      <input type="checkbox" id="chk{{image_name}}" name="image" value="{{image_name}}" />
+                      <label for="chk{{image_name}}" title="Train">
+                        <img src="{{url_for('send_image', filename=image_name)}}" />
+                      </label>
+                      <!-- popover delete start -->
+                      <!-- <div class="popover-content" style="display: none;"> -->
+                        <div class="popover-content">
+                          <div class="col-sm-12 no-pad-lf">
+                            <button type="button" data-toggle="modal" data-target="#modalTrain{{loop.index}}" type="submit" class="btn btn-danger btn-xs common-btn next-btn" name="submit" title="Delete the Image" style="margin-left: 0; margin-bottom: 5px; padding: 0;">
+                              <i class="fas fa-trash-alt" aria-hidden="true" style="color: white;"></i>
+                            </button>
+                          </div>
+                        </div>
+                      <!-- </div> -->
+                      <!-- popover delete end -->
+                      <!-- delete confirm box start -->
+                      <div id="modalTrain{{loop.index}}" class="modal fade" role="dialog">
+                          <div class="modal-dialog">
+                              <!-- Modal content-->
+                              <div class="modal-content">
+                                  <div class="modal-header">
+                                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                      <h4 class="modal-title">Delete</h4>
+                                  </div>
+                                  <div class="modal-body">
+                                    This will delete the image. <br/>
+                                    Are you sure?
+                                  </div>
+                                  <div class="modal-footer">
+                                    <form class="popover-contentDel" action="{{ url_for('delete') }}" method="POST" enctype="multipart/form-data">
+                                      <input type="hidden" id="deleteImage" name="deleteImage" value="{{image_name}}" />
+                                      <input type="hidden" id="deleteFrom" name="deleteFrom" value="train" />
+                                      <button type="submit" class="btn btn-danger" name="submit" id="delete">Delete</button>
+                                      <button type="button" data-dismiss="modal" class="btn btn-success">Cancel</button>
+                                    </form>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <!-- delete confirm box end -->
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="uploadSection">
+              <form id="upload-formTrain" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnimTrain();">
+                <div class="col-sm-12 no-pad-lf">
+                  <div class="form-group inputDnD">
+                    <label class="sr-only" for="uploadSmall">File Upload</label>
+                    <input type="file" name="fileToUpload" class="form-control-fileTrain text-primary font-weight-bold" id="uploadSmall" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
+                  </div>
                 </div>
-            {% endif %}
+                <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
+                    <button id="btnSubmitTrain" type="submit" class="btn btn-success common-btn upload-btn" name="submit" style="display: none;">Upload Now</button>
+                    <button id="btnSubmitTrainDis" type="button" class="btn btn-success common-btn upload-btn disabled">Upload Now</button>
+                    
+                  </div>
+              </form>
+              <!-- <form id="upload-formTrainBtn" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnimTrain();">
+                <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
+                    <label class="sr-only" for="uploadSmallBtn">File Upload</label>
+                    <input type="file" name="fileToUpload" class="form-control-fileTrainBtn text-primary font-weight-bold" id="uploadSmallBtn" required multiple accept="image/*">
+                  <button type="button" class="btn btn-success common-btn upload-btn" >Upload one or more poster to train</button>
+                </div>
+              </form> -->
+            </div>
+
+            <div class="col-sm-12 no-pad-lf second-form">
+              <div class="col-sm-12 no-pad-lf img-gallery-box">
+                <ul>
+                  <!-- display poster images for select -->
+                  {% for image_nameUp in image_namesUp %}
+                    {% if image_nameUp.lower().endswith('.jpg') or image_nameUp.lower().endswith('.jpeg') or image_nameUp.lower().endswith('.png') %}
+                      <li class="image-checkbox selectorDel">
+                        <input type="checkbox" id="chkb{{image_nameUp}}" name="imageUp" value="{{image_nameUp}}" />
+                        <label for="chkb{{image_nameUp}}" title="Poster">
+                          <img src="{{url_for('poster_image', filename=image_nameUp)}}" />
+                        </label>
+                        <!-- popover delete start -->                      
+                        <div class="popover-content">
+                          <div class="col-sm-12 no-pad-lf">
+                            <button type="button" data-toggle="modal" data-target="#modalUp{{loop.index}}" class="btn btn-danger btn-xs common-btn next-btn" title="Delete the Image" style="margin-left: 0; margin-bottom: 5px; padding: 0;">
+                              <i class="fas fa-trash-alt" aria-hidden="true" style="color: white;"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <!-- popover delete end -->
+                        <!-- delete confirm box start -->
+                        <div id="modalUp{{loop.index}}" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Delete</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                      This will delete the image. <br/>
+                                      Are you sure?
+                                    </div>
+                                    <div class="modal-footer">
+                                      <form class="popover-contentDel" action="{{ url_for('delete') }}" method="POST" enctype="multipart/form-data">
+                                        <input type="hidden" id="deleteImage" name="deleteImage" value="{{image_nameUp}}" />
+                                        <input type="hidden" id="deleteFrom" name="deleteFrom" value="poster" />
+                                        <button type="submit" class="btn btn-danger" name="submit" id="delete">Delete</button>
+                                        <button type="button" data-dismiss="modal" class="btn btn-success">Cancel</button>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- delete confirm box end -->
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </div>
+              
+              <div class="uploadSection">
+                <form id="uploadCheckBig" action="{{ url_for('uploaded') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnim();">
+                  <div class="col-sm-12 no-pad-lf">
+                    <div class="form-group inputDnD">
+                      <label class="sr-only" for="uploadBig">File Upload</label>
+                        <input type="file" name="fileToUpload" class="form-control-file text-primary font-weight-bold" id="uploadBig" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
+                    </div>
+                  </div>
+                  <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
+                      <button id="btnSubmitUp" type="submit" class="btn btn-primary common-btn compare-btn" name="submit" style="display: none;">Upload Now</button>
+                      <button id="btnSubmitUpDis" type="button" class="btn btn-primary common-btn compare-btn disabled">Upload Now</button>
+                      {% if filecountUp > 0 and filecount > 0 %}
+                        <a href="{{url_for('select')}}" class="btn btn-primary common-btn next-btn">Next <i class="fas fa-angle-double-right"></i></a>
+                      {% else %}
+                        <button type="button" class="btn btn-primary common-btn disabled next-btn">Next <i class="fas fa-angle-double-right"></i></button>
+                      {% endif %}
+                    </div>
+                </form>
+                <!-- <form id="uploadCheckBigBtn" action="{{ url_for('uploaded') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnim();">
+                  <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
+                    <label class="sr-only" for="uploadBigBtn">File Upload</label>
+                    <input type="file" name="fileToUpload" class="form-control-fileBtn text-primary font-weight-bold" id="uploadBigBtn" required multiple accept="image/*" style="width: 327px;" />
+                    <button type="button" class="btn btn-primary common-btn compare-btn">Upload one or more photos to compare</button>
+                    {% if filecountUp > 0 and filecount > 0 %}
+                      <a href="{{url_for('select')}}" class="btn btn-primary common-btn next-btn">Next <i class="fas fa-angle-double-right"></i></a>
+                    {% else %}
+                      <button type="button" class="btn btn-primary common-btn disabled next-btn">Next <i class="fas fa-angle-double-right"></i></button>
+                    {% endif %}
+                  </div>
+                </form> -->
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Modal -->
+      <div id="uploadModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                  <span id="valProgress">0%</span>
+                </div>
+              </div>
+              <!-- {% include 'anim-upload.html' %} -->
+              <div class="row">
+                <br/>
+                <span style="text-align: center; width:100%; float: left; font-weight: bold; font-size: 0.8em;">Uploading Image</span>
+              </div>
+            </div>
+          </div>  
+        </div>
+      </div>
+      <!-- End Upload Modal -->
+
+      <!-- Match Modal -->
+      <div id="trainModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-body">
+              {% include 'anim-training.html' %}
+                <div class="row">
+                  <br/>
+                  <span style="text-align: center; width:100%; float: left; font-weight: bold; font-size: 0.8em;" id="msgCompare"> </span>
+                </div>
+            </div>
+          </div>  
+        </div>
+      </div>
+      <!-- End Match Modal -->
+
+      <!-- View flash Modal Start -->
+      <div id="flashMsgModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+              <!-- Modal content-->
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Information</h4>
+                  </div>
+                  <div class="modal-body">
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        <ul class=flashes>
+                          {% for message in messages %}
+                          <li style="color: #F00;">{{ message }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+              </div>  
+          </div>
+      </div>
+      <!-- View flash Modal End -->
+
+      <!-- <div class="flashes">
+          {% for message in get_flashed_messages() %}
+            {{ message }}
           {% endfor %}
-
-        </div>
-      </div>
-      <br/> <br/> <br/> <br/>       
-      <div class="row">
-        <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-          <div class="form-group col-md-11">
-            <label for="uploadSmall">Upload an Poster to train.:</label>
-            <!-- <input type="file" id="uploadSmall" class="form-control" name="uploadSmall" value="Upload Now"/> -->
-            <input type="file" name="fileToUpload" class="form-control" id="uploadSmall" accept="image/*" required>
-            <input type="submit" value="Upload Now" class="form-control" name="submit">
-          </div>
-        </form>
-      </div>
+      </div> -->
 
     </div>
-    
-    <div class="col-md-6">
-      <div class="row">
-        <div class="form-group col-md-11">
-            <label for="photographer">Photographer's Name:</label>
-            <input type="text" id="photographer" class="form-control" name="photographer" />
-        </div>
-      </div>
-      <br/> <br/> <br/> <br/>
-      <div class="row">
-        <form id="uploadCheck" action="{{ url_for('uploaded') }}" method="POST" enctype="multipart/form-data">
-          <div class="form-group col-md-11">
-            <label for="uploadBig">Upload an Poster to check with trained posters.</label>
-            <!-- <input type="file" id="uploadBig" class="form-control" name="uploadBig" value="Upload Now" accept="image/*" /> -->
-            <input type="file" name="fileToUpload" class="form-control" id="uploadBig" accept="image/*" required>
-            <input type="submit" value="Upload Now" class="form-control" name="submit">
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
-</div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      function readUrl(input) {
 
-</body>
+        // if (input.files && input.files[0]) {
+        //   var reader = new FileReader();
+        //   reader.onload = function (e) {
+        //     var imgData = e.target.result;
+        //     var imgName = input.files[0].name;
+        //     input.setAttribute("data-title", imgName);
+        //     console.log(e.target.result);
+        //   };
+        //   reader.readAsDataURL(input.files[0]);
+        // }
+      }
 
-<script>
-  $("#uploadSmall").change(function(){
-      var input = document.getElementById('uploadSmall');
-      for (var i=0; i<input.files.length; i++)
-      {
-          var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
-          if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') ))
+      var fileSelected = 1;
+      $('input.form-control-fileTrain').change(function(){
+        var files = $(this)[0].files;
+        fileSelected = files.length;
+        var fileMsg = files.length + " image(s) selected";
+        this.setAttribute("data-title", fileMsg);
+        //$('#upload-formTrain').submit();
+        $('#btnSubmitTrain').show();
+        $('#btnSubmitTrainDis').hide();
+      });
+
+      // $('input.form-control-fileTrainBtn').change(function(){
+      //   var files = $(this)[0].files;
+      //   fileSelected = files.length;
+      //   $('#upload-formTrainBtn').submit();
+      // });
+
+      $('input.form-control-file').change(function(){
+        var files = $(this)[0].files;
+        fileSelected = files.length;
+        var fileMsg = files.length + " image(s) selected";
+        this.setAttribute("data-title", fileMsg);
+        //$('#uploadCheckBig').submit();
+        $('#btnSubmitUp').show();
+        $('#btnSubmitUpDis').hide();
+      });
+
+      // $('input.form-control-fileBtn').change(function(){
+      //   var files = $(this)[0].files;
+      //   fileSelected = files.length;
+      //   $('#uploadCheckBigBtn').submit();
+      // });
+
+      $("#uploadSmall").change(function(){
+          var input = document.getElementById('uploadSmall');
+          for (var i=0; i<input.files.length; i++)
           {
-              alert("Files are NOT supported")
-              document.getElementById("uploadSmall").value ="";
+              var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+              if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') || (ext == 'gif') || (ext == 'bmp') ))
+              {
+                  alert("Files are NOT supported")
+                  document.getElementById("uploadSmall").value ="";
+              }
+          }
+      });
+
+      $("#uploadBig").change(function(){
+          var input = document.getElementById('uploadBig');
+          for (var i=0; i<input.files.length; i++)
+          {
+              var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
+              if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') || (ext == 'gif') || (ext == 'bmp') ))
+              {
+                  alert("Files are NOT supported")
+                  document.getElementById("uploadBig").value ="";
+              }
+          }
+      });
+  
+      var bar = 0;
+      var time = Math.floor((Math.random() * 5) + 2);
+      
+      function showAnim() {
+        time = fileSelected*time;
+        $('#uploadModal').modal({backdrop: "static"});
+        $('#uploadModal').modal('show');
+        setTimeout( progress, 600 );
+        //progress();
+        
+        setTimeout(function() {
+          $('#uploadModal').modal('hide');
+          $('#trainModal #msgCompare').text('Checking for Duplicates');
+          $('#trainModal').modal({backdrop: "static"});
+          $('#trainModal').modal('show');
+        }, (2+time)*1000);
+      }
+  
+      function progress() {
+          bar = bar + 1;
+          $('.progress-bar').css('width', bar+'%').attr('aria-valuenow', bar);
+          $('#valProgress').text(bar+'%');
+          if ( bar < 100 ) {
+            setTimeout( progress, time*10 );
           }
       }
-  });
 
-  $("#uploadBig").change(function(){
-      var input = document.getElementById('uploadBig');
-      for (var i=0; i<input.files.length; i++)
-      {
-          var ext= input.files[i].name.substring(input.files[i].name.lastIndexOf('.')+1).toLowerCase()
-          if (!((ext == 'jpg') || (ext == 'png') || (ext == 'jpeg') ))
-          {
-              alert("Files are NOT supported")
-              document.getElementById("uploadBig").value ="";
-          }
+      function showAnimTrain() { 
+        time = fileSelected*time;
+        $('#uploadModal').modal({backdrop: "static"});
+        $('#uploadModal').modal('show');
+        setTimeout( progress, 600 );
+        //progress();
+        
+        setTimeout(function() {
+          $('#uploadModal').modal('hide');
+          $('#trainModal #msgCompare').text('Training of Image');
+          $('#trainModal').modal({backdrop: "static"});
+          $('#trainModal').modal('show');
+        }, (2+time)*1000);
       }
-  });
 
-  // $('#upload-file-btn').click(function() {
-  //     var form_data = new FormData($('#upload-file')[0]);
-  //     $.ajax({
-  //         type: 'POST',
-  //         url: '/upload',
-  //         data: form_data,
-  //         contentType: false,
-  //         cache: false,
-  //         processData: false,
-  //         success: function(data) {
-  //             console.log('Success!');
-  //         },
-  //     });
-  // });
-</script>
+      var messages = "{{ get_flashed_messages() }}";
 
+      if (typeof messages != 'undefined' && messages != '[]') {
+          $("#flashMsgModal").modal();
+      };
+
+      var browser = navigator.userAgent.toLowerCase();
+      if (browser.indexOf('firefox') > -1) {
+          $('.inputDnD .form-control-file').attr('style', 'visibility: visible;');
+          $('.inputDnD .form-control-fileTrain').attr('style', 'visibility: visible;');
+      }
+
+    </script>
+  </body>
 </html>
