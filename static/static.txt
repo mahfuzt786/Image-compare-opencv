@@ -1,0 +1,1 @@
+css, js are here (Flask Default)
