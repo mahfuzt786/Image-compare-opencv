@@ -12,6 +12,7 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.css">
     <link rel="stylesheet" href="{{ url_for('static', filename = 'app.css') }}">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -39,10 +40,18 @@
               {% for j in range(matchedImage[i]|count) %}
                 <div class="col-xs-12 col-sm-12 match-body no-pad-lf">
                   <div class="col-xs-4 col-sm-3 no-pad-lf">
-                    <img src="{{url_for('uploaded_file', filename=image_poster[i])}}" class="img-responsive">
+                    <a href="{{url_for('uploaded_file', filename=image_poster[i])}}" data-toggle="lightbox" data-width="900">
+                      <img src="{{url_for('uploaded_file', filename=image_poster[i])}}" class="img-responsive">
+                    </a>
                   </div>
                   <div class="col-xs-4 col-sm-3 no-pad-lf match-body-head">
-                    <h5>Successfully Matched</h5>
+                    {% if (matchedValue[i][j]|float) <= 1.63 %}
+                      <h5 style="color: #F00;">no matched found</h5>
+                    {% elif (matchedValue[i][j]|float) <= 1.75 %}
+                      <h5 style="color: #00F;">May be a Match</h5>
+                    {% else %}
+                      <h5>Successfully Matched</h5>
+                    {% endif %}
                     <hr>
                     <a href="#" data-toggle="modal" data-target="#returnValueModal{{i}}{{j}}">View Details</a>
                   </div>
@@ -56,7 +65,7 @@
                                 <h4 class="modal-title">Details</h4>
                             </div>
                             <div class="modal-body">
-                              Matching Possibilities : <strong> {{matchedValue[i][j]}} </strong>
+                              Matching Possibilities : <strong> {{matchedValue[i][j]}}% </strong>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -66,12 +75,14 @@
                   </div>
                   <!-- View Details Modal End -->
                   <div class="col-xs-4 col-sm-3 no-pad-lf">
-                    <img src="{{url_for('send_image', filename=matchedImage[i][j])}}" class="img-responsive">
+                    <a href="{{url_for('uploaded_file', filename=matchedImage[i][j])}}" data-toggle="lightbox" data-gallery="trainGal[i]">
+                      <img src="{{url_for('send_image', filename=matchedImage[i][j])}}" class="img-responsive">
+                    </a>
                   </div>
                 </div>
               {% endfor %}
-              <!-- display no matched -->
-              {% for j in range(nomatchedImage[i]|count) %}
+              
+              <!-- { % for j in range(nomatchedImage[i]|count) % }
                 <div class="col-xs-12 col-sm-12 match-body no-pad-lf">
                   <div class="col-xs-4 col-sm-3 no-pad-lf">
                     <img src="{{url_for('uploaded_file', filename=image_poster[i])}}" class="img-responsive">
@@ -81,17 +92,15 @@
                     <hr>
                     <a href="#" data-toggle="modal" data-target="#returnValueModalNo{{i}}{{j}}">View Details</a>
                   </div>
-                  <!-- View Details Modal Start -->
                   <div id="returnValueModalNo{{i}}{{j}}" class="modal fade" role="dialog">
                     <div class="modal-dialog">
-                        <!-- Modal content-->
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title">Details</h4>
                             </div>
                             <div class="modal-body">
-                                Matching Possibilities : <strong> {{nomatchedValues[i][j]}} </strong>
+                                Matching Possibilities : <strong> {{nomatchedValues[i][j]}}% </strong>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -99,12 +108,11 @@
                         </div>  
                     </div>
                   </div>
-                  <!-- View Details Modal End -->
                   <div class="col-xs-4 col-sm-3 no-pad-lf">
                     <img src="{{url_for('send_image', filename=nomatchedImage[i][j])}}" class="img-responsive">
                   </div>
                 </div>
-              {% endfor %}
+              { % endfor % } -->
             {% endfor %}
         </div>
       </div>
@@ -114,20 +122,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <!-- <script type="text/javascript">
-      function readUrl(input) {
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js"></script>
+    <script type="text/javascript">
+      // function readUrl(input) {
 
-        if (input.files && input.files[0]) {
-          var reader = new FileReader();
-              reader.onload = function (e) {
-                var imgData = e.target.result;
-                var imgName = input.files[0].name;
-                input.setAttribute("data-title", imgName);
-                console.log(e.target.result);
-              };
-              reader.readAsDataURL(input.files[0]);
-            }
-      }
-    </script> -->
+      //   if (input.files && input.files[0]) {
+      //     var reader = new FileReader();
+      //         reader.onload = function (e) {
+      //           var imgData = e.target.result;
+      //           var imgName = input.files[0].name;
+      //           input.setAttribute("data-title", imgName);
+      //           console.log(e.target.result);
+      //         };
+      //         reader.readAsDataURL(input.files[0]);
+      //       }
+      // }
+
+      $(document).on('click', '[data-toggle="lightbox"]', function(event) {
+          event.preventDefault();
+          $(this).ekkoLightbox({
+            alwaysShowClose: true
+          });
+      });
+    </script>
   </body>
 </html>

@@ -2,13 +2,16 @@ from flask import Flask, request, render_template, send_from_directory, flash, r
 import os
 from werkzeug.utils import secure_filename
 import cv2
-from shutil import move,copy2,copy
+from shutil import copy2
 import json
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 trainedImagePath = os.path.join(APP_ROOT, "train")
+TRAIN_FOLDER_mid = os.path.join(APP_ROOT, "trainSmall")
 UPLOAD_FOLDER = os.path.join(APP_ROOT, "uploads")
 POSTER_FOLDER = os.path.join(APP_ROOT, "poster")
+POSTER_SMALL = os.path.join(APP_ROOT, "posterSmall")
+POSTER_MID = os.path.join(APP_ROOT, "posterMid")
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'bmp'])
 
@@ -23,7 +26,10 @@ app = Flask(__name__)
 app.secret_key = "super_secret_key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['POSTER_FOLDER'] = POSTER_FOLDER
+app.config['POSTER_SMALL']  = POSTER_SMALL
+app.config['POSTER_MID']  = POSTER_MID
 app.config['TRAIN_FOLDER']  = trainedImagePath
+app.config['TRAIN_FOLDER_mid']  = TRAIN_FOLDER_mid
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 ## function to check allowed filetype
@@ -56,8 +62,8 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     #     # dimensions
     #     r = width / float(w)
     #     dim = (width, int(h * r))
-        if w > 1952:
-            dim = (int(w/2), int(h/2))
+        if w > 1200:
+            dim = (int(w/1.5), int(h/1.5))
         else:
             dim = (w, h)
     
@@ -169,11 +175,13 @@ def upload():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 destination = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                destinationTrain = os.path.join(app.config['TRAIN_FOLDER_mid'], filename)
                 file.save(destination)
-
+                copy2(destination, destinationTrain)
                 ## after upload to 'uploads' folder check for duplicates
                 #img1 = cv2.imread(destination, 0)             # queryImage
-                imgT = cv2.imread(destination)                  # queryImage
+                #imgT = cv2.imread(destination)                  # queryImage
+                imgT = cv2.imread(destinationTrain)                  # queryImage
                 (h, w) = imgT.shape[:2]
                 if w < 400:
                     lessSize += 1
@@ -181,10 +189,13 @@ def upload():
                     ## resize the image
                     imgT = image_resize(imgT, height = 250)
                     # save the resized image
-                    cv2.imwrite(destination, imgT)
-                    img1 = cv2.imread(destination)
+                    #cv2.imwrite(destination, imgT)
+                    #img1 = cv2.imread(destination)
+                    cv2.imwrite(destinationTrain, imgT)
+                    img1 = cv2.imread(destinationTrain)
 
-                    alreadyTrained = duplicateTrain(destination, trained, img1, alreadyTrained)
+                    #alreadyTrained = duplicateTrain(destination, trained, img1, alreadyTrained)
+                    alreadyTrained = duplicateTrain(destinationTrain, trained, img1, alreadyTrained)
             else:
                 return 'File not allowed'
 
@@ -200,8 +211,9 @@ def upload():
 # Function to check matched images with the big poster
 @app.route("/uploaded", methods=['POST'])
 def uploaded():
-    target  = os.path.join(APP_ROOT, 'uploads/')
-    poster = os.path.join(APP_ROOT, 'poster/')
+    target      = os.path.join(APP_ROOT, 'uploads/')
+    poster      = os.path.join(APP_ROOT, 'poster/')
+    posterMid = os.path.join(APP_ROOT, 'posterMid/')
     
     if not os.path.isdir(target):
             os.mkdir(target)
@@ -230,10 +242,12 @@ def uploaded():
                 return redirect(request.url)
 
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                destination = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                filename            = secure_filename(file.filename)
+                destination         = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                destinationSmall    = os.path.join(app.config['POSTER_SMALL'], filename)
                 file.save(destination)
                 #print(destination)
+                copy2(destination, destinationSmall)
                 ## after upload to 'uploads' folder check for matching
                 #img1 = cv2.imread(destination, 0)             # queryImage
                 #img1 = cv2.imread(destination)                  # queryImage
@@ -241,19 +255,30 @@ def uploaded():
                 #img1 = image_resize(img1, height = 900)
                 # save the resized image
                 #cv2.imwrite(destination, img1)
+                
+                imgB = cv2.imread(destination)                  # queryImage
 
-                imgT = cv2.imread(destination)                  # queryImage
-                (h, w) = imgT.shape[:2]
+                # For Compare with trained images need bigger resolutions
+                (h, w) = imgB.shape[:2]
                 if w < 900:
                     lessSize += 1
                 else :
                     ## resize the image
-                    imgT = image_resize(imgT, width= 960)
+                    imgB = image_resize(imgB, width= 960)
                     # save the resized image
-                    cv2.imwrite(destination, imgT)
-                    img1 = cv2.imread(destination)
+                    cv2.imwrite(destination, imgB)
+                #     img1 = cv2.imread(destination)
+
+                imgT = cv2.imread(destinationSmall)                  # queryImage
+                (hs, ws) = imgT.shape[:2]
+                if ws > 900:
+                    imgT = image_resize(imgT, height= 500)
+                    # save the resized image
+                    cv2.imwrite(destinationSmall, imgT)
+                    img1 = cv2.imread(destinationSmall)
                     
-                    alreadyTrainedUp = duplicate(destination, poster, img1, alreadyTrainedUp)
+                    #alreadyTrainedUp = duplicate(destination, poster, img1, alreadyTrainedUp)
+                    alreadyTrainedUp = duplicate(destination, poster, destinationSmall, posterMid, img1, alreadyTrainedUp)
                 # if not os.listdir("./poster"):
                 #     copy2(destination, poster)
                 # else:
@@ -277,7 +302,7 @@ def uploaded():
                 #return redirect(url_for('index'))
             else:
                 return 'File not allowed'
-    
+
         if alreadyTrainedUp > 0:
             flash('{} Image(s) already Uploaded.'.format(alreadyTrainedUp))
         if lessSize > 0:
@@ -286,14 +311,16 @@ def uploaded():
 
     return 'Error'
 
-def duplicate(destination, poster, img1, alreadyTrainedUp):
-    if not os.listdir("./poster"):
+# def duplicate(destinationSmall, posterSmall, destination, poster, img1, alreadyTrainedUp):
+def duplicate(destination, poster, destinationSmall, posterMid, img1, alreadyTrainedUp):
+    if not os.listdir("./posterMid"):
+        copy2(destinationSmall, posterMid)
         copy2(destination, poster)
     else:
         ## Find All images from the train folder (JPEG, JPG, PNG, GIF and BMP)
-        for file in os.listdir("./poster"):
+        for file in os.listdir("./posterMid"):
             if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png') or file.lower().endswith('.gif') or file.lower().endswith('.bmp'):
-                newImage = os.path.join('poster/', file)
+                newImage = os.path.join('posterMid/', file)
                 # img2 = cv2.imread(newImage, 0)     # trainImage
                 img2 = cv2.imread(newImage)     # trainImage
                 returnValue = computeImage(img1, img2)
@@ -301,14 +328,39 @@ def duplicate(destination, poster, img1, alreadyTrainedUp):
                 if returnValue >= 75:
                     alreadyTrainedUp += 1
                     return alreadyTrainedUp
-
+        
+        copy2(destinationSmall, posterMid)
         copy2(destination, poster)
 
     return alreadyTrainedUp
 
+# def duplicate(destination, poster, img1, alreadyTrainedUp):
+#     if not os.listdir("./poster"):
+#         copy2(destination, poster)
+#         #copy2(destinationSmall, posterSmall)
+#     else:
+#         ## Find All images from the train folder (JPEG, JPG, PNG, GIF and BMP)
+#         for file in os.listdir("./poster"):
+#             if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png') or file.lower().endswith('.gif') or file.lower().endswith('.bmp'):
+#                 newImage = os.path.join('poster/', file)
+#                 # img2 = cv2.imread(newImage, 0)     # trainImage
+#                 img2 = cv2.imread(newImage)     # trainImage
+#                 returnValue = computeImage(img1, img2)
+#                 print(returnValue)
+#                 if returnValue >= 75:
+#                     alreadyTrainedUp += 1
+#                     return alreadyTrainedUp
+#                 # else:
+#                 #     copy2(destination, poster)
+        
+#         copy2(destination, poster)
+#         #copy2(destinationSmall, posterSmall)
+
+#     return alreadyTrainedUp
+
 def duplicateTrain(destination, trained, img1, alreadyTrained):
     if not os.listdir("./train"):
-        move(destination, trained)
+        copy2(destination, trained)
     else:
         ## Find All images from the train folder (JPEG, JPG, PNG, GIF and BMP)
         for file in os.listdir("./train"):
@@ -342,9 +394,10 @@ def compare():
             matchedSize         = 0
             for i in range (0, len(posterSelectedImg)):
                 destination = os.path.join(app.config['POSTER_FOLDER'], posterSelectedImg[i])
+                destinationMid = os.path.join(app.config['POSTER_MID'], posterSelectedImg[i])
                 #print(destination)
                 ## load the image from 'poster' folder check for matching
-                img1 = cv2.imread(destination, 0)             # queryImage
+                img1 = cv2.imread(destination)             # queryImage
                 #img1 = cv2.imread(destination)                  # queryImage
                 
                 # TO BE IMPLEMENTED FOR COMPARE FUNCTION
@@ -357,23 +410,26 @@ def compare():
                     if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png') or file.lower().endswith('.gif') or file.lower().endswith('.bmp'):
                         newImage = os.path.join('train/', file)
                         #print(newImage)
-                        img2 = cv2.imread(newImage, 0)     # trainImage
+                        img2 = cv2.imread(newImage)     # trainImage
                         returnValue = computeImage(img2, img1)
 
-                        if returnValue >= 1.69 :
-                        
-                            imgList.append(file)
-                            imgValue.append(str(round(returnValue, 2)) +'%')
+                        if returnValue >= 1.63 :
+                            matchedSize += 1
+
+                        # if returnValue >= 1.63 :
+                        imgList.append(file)
+                        imgValue.append(str(round(returnValue, 2)))
                             #print(newImage)
                             #print(returnValue)
-                        else:
-                            imgListNo.append(file)
-                            imgValueNo.append(str(round(returnValue, 2)) +'%')
+                        # else:
+                        #     imgListNo.append(file)
+                        #     imgValueNo.append(str(round(returnValue, 2)))
                 
                 # Calculate total matched trained images
-                matchedSize += len(imgList)
+                # matchedSize += len(imgList)
                 # Delete image from poster folder
                 os.remove(destination)
+                os.remove(destinationMid)
 
                 imgListS.append(imgList)
                 imgValueS.append(imgValue)
@@ -396,12 +452,15 @@ def delete():
         deleteFrom              = request.form['deleteFrom']
         
         if deleteFrom == 'poster' :
-            destination = os.path.join(app.config['POSTER_FOLDER'], deleteSelectedImg)
+            destination    = os.path.join(app.config['POSTER_FOLDER'], deleteSelectedImg)
+            destinationMid = os.path.join(app.config['POSTER_MID'], deleteSelectedImg)
         else :
             destination = os.path.join(app.config['TRAIN_FOLDER'], deleteSelectedImg)
+            destinationMid = os.path.join(app.config['TRAIN_FOLDER_mid'], deleteSelectedImg)
         
         # Delete image from folder
         os.remove(destination)
+        os.remove(destinationMid)
             
         flash('Image Deleted')
         return redirect(url_for('index'))

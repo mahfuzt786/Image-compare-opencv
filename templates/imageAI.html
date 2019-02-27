@@ -12,6 +12,7 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.css">
     <link rel="stylesheet" href="{{ url_for('static', filename = 'app.css') }}">
 
   </head>
@@ -30,7 +31,9 @@
                     <li class="image-checkbox selectorDel"> <!-- data-container="body" rel="popover"> -->
                       <input type="checkbox" id="chk{{image_name}}" name="image" value="{{image_name}}" />
                       <label for="chk{{image_name}}" title="Train">
-                        <img src="{{url_for('send_image', filename=image_name)}}" />
+                        <a href="{{url_for('uploaded_file', filename=image_name)}}" data-toggle="lightbox" data-gallery="trainImage">
+                          <img src="{{url_for('uploaded_file', filename=image_name)}}" />
+                        </a>
                       </label>
                       <!-- popover delete start -->
                       <!-- <div class="popover-content" style="display: none;"> -->
@@ -75,17 +78,22 @@
             </div>
             <div class="uploadSection">
               <form id="upload-formTrain" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnimTrain();">
-                <div class="col-sm-12 no-pad-lf">
+                <!-- <div class="col-sm-12 no-pad-lf">
                   <div class="form-group inputDnD">
                     <label class="sr-only" for="uploadSmall">File Upload</label>
                     <input type="file" name="fileToUpload" class="form-control-fileTrain text-primary font-weight-bold" id="uploadSmall" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
                   </div>
+                </div> -->
+                <div class="col-sm-12 no-pad-lf upload-main">
+                  <div class="form-group upload-form">
+                    <input type="file" name="fileToUpload" class="form-control-fileTrain text-primary font-weight-bold" id="uploadSmall" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
+                    <p id="selectedText">Click or Drag to upload one or more images.</p>
+                  </div>
                 </div>
                 <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
-                    <button id="btnSubmitTrain" type="submit" class="btn btn-success common-btn upload-btn" name="submit" style="display: none;">Upload Now</button>
-                    <button id="btnSubmitTrainDis" type="button" class="btn btn-success common-btn upload-btn disabled">Upload Now</button>
-                    
-                  </div>
+                  <button id="btnSubmitTrain" type="submit" class="btn btn-success common-btn upload-btn" name="submit" style="display: none;">Upload Now</button>
+                  <button id="btnSubmitTrainDis" type="button" class="btn btn-success common-btn upload-btn disabled">Upload Now</button>
+                </div>
               </form>
               <!-- <form id="upload-formTrainBtn" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnimTrain();">
                 <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
@@ -105,7 +113,9 @@
                       <li class="image-checkbox selectorDel">
                         <input type="checkbox" id="chkb{{image_nameUp}}" name="imageUp" value="{{image_nameUp}}" />
                         <label for="chkb{{image_nameUp}}" title="Poster">
-                          <img src="{{url_for('poster_image', filename=image_nameUp)}}" />
+                          <a href="{{url_for('poster_image', filename=image_nameUp)}}" data-toggle="lightbox" data-gallery="groupPoster">
+                            <img src="{{url_for('poster_image', filename=image_nameUp)}}" />
+                          </a>
                         </label>
                         <!-- popover delete start -->                      
                         <div class="popover-content">
@@ -149,10 +159,16 @@
               
               <div class="uploadSection">
                 <form id="uploadCheckBig" action="{{ url_for('uploaded') }}" method="POST" enctype="multipart/form-data" onsubmit="showAnim();">
-                  <div class="col-sm-12 no-pad-lf">
+                  <!-- <div class="col-sm-12 no-pad-lf">
                     <div class="form-group inputDnD">
                       <label class="sr-only" for="uploadBig">File Upload</label>
                         <input type="file" name="fileToUpload" class="form-control-file text-primary font-weight-bold" id="uploadBig" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
+                    </div>
+                  </div> -->
+                  <div class="col-sm-12 no-pad-lf upload-main">
+                    <div class="form-group upload-form">
+                      <input type="file" name="fileToUpload" class="form-control-file text-primary font-weight-bold" id="uploadBig" required multiple accept="image/*" data-title="Click or Drag to upload one or more images">
+                      <p id="selectedTextUp">Click or Drag to upload one or more images.</p>
                     </div>
                   </div>
                   <div class="col-sm-12 no-pad-lf upload-btn-wrapper">
@@ -264,6 +280,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js"></script>
     <script type="text/javascript">
       function readUrl(input) {
 
@@ -285,6 +302,7 @@
         fileSelected = files.length;
         var fileMsg = files.length + " image(s) selected";
         this.setAttribute("data-title", fileMsg);
+        $('.upload-form p#selectedText').text(fileMsg);
         //$('#upload-formTrain').submit();
         $('#btnSubmitTrain').show();
         $('#btnSubmitTrainDis').hide();
@@ -301,6 +319,7 @@
         fileSelected = files.length;
         var fileMsg = files.length + " image(s) selected";
         this.setAttribute("data-title", fileMsg);
+        $('.upload-form p#selectedTextUp').text(fileMsg);
         //$('#uploadCheckBig').submit();
         $('#btnSubmitUp').show();
         $('#btnSubmitUpDis').hide();
@@ -339,7 +358,7 @@
       });
   
       var bar = 0;
-      var time = Math.floor((Math.random() * 5) + 2);
+      var time = Math.floor((Math.random() * 3) + 2);
       
       function showAnim() {
         time = fileSelected*time;
@@ -386,11 +405,12 @@
           $("#flashMsgModal").modal();
       };
 
-      var browser = navigator.userAgent.toLowerCase();
-      if (browser.indexOf('firefox') > -1) {
-          $('.inputDnD .form-control-file').attr('style', 'visibility: visible;');
-          $('.inputDnD .form-control-fileTrain').attr('style', 'visibility: visible;');
-      }
+      $(document).on('click', '[data-toggle="lightbox"]', function(event) {
+          event.preventDefault();
+          $(this).ekkoLightbox({
+            alwaysShowClose: true
+          });
+      });
 
     </script>
   </body>
