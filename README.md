@@ -10,3 +10,5 @@ install flask
 Run flask server
 
 Main file : app.py
+
+http://www.alegralabs.com:8880/
