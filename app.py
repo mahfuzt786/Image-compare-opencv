@@ -13,7 +13,7 @@ POSTER_FOLDER = os.path.join(APP_ROOT, "poster")
 POSTER_SMALL = os.path.join(APP_ROOT, "posterSmall")
 POSTER_MID = os.path.join(APP_ROOT, "posterMid")
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'bmp'])
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
 
 if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)

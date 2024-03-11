@@ -9,7 +9,7 @@ from shutil import copy2, copy
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 #trainedImagePath = os.path.join(APP_ROOT, "train")
 #UPLOAD_FOLDER = os.path.join(APP_ROOT, "uploads")
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 trainedImagePath = "train"
 UPLOAD_FOLDER = "uploads"
