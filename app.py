@@ -488,5 +488,5 @@ def poster_image(filename):
 #     return render_template("output.html", image_names=imgList)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
     #app.run(port=4996, host='0.0.0.0')
